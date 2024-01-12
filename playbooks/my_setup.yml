@@ -30,7 +30,7 @@
     - role: grub_password
     - role: root_password_change
     - role: wayland_off
-    - role: teamviewer # check
+    - role: teamviewer
     - role: wallpaper_set
     - role: firewall
     - role: fail2ban
