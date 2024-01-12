@@ -1,0 +1,62 @@
+---
+- name: Install SSH server
+  become: true
+  apt:
+    name:
+      - openssh-server
+    state: latest
+
+- name: Create root .ssh directory
+  become: true
+  file:
+    path: /root/.ssh/
+    state: directory
+    mode: '0700'
+
+- name: Copy issue file for SSH login prompt
+  become: true
+  ansible.builtin.copy:
+    src: issue
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload sshd
+
+- name: Copy ssh_banner file for successful SSH login
+  become: true
+  ansible.builtin.copy:
+    src: ssh_banner
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload sshd
+
+- name: Update sshd_configs
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^(#)?\s*{{ item.key }}\s*'
+    line: '{{ item.key }} {{ item.value }}'
+    state: present
+  loop:
+    - {key: 'Banner', value: '/etc/issue'}
+    - {key: 'PrintMotd', value: 'no'}
+    - {key: 'PermitRootLogin', value: 'no'}
+    - {key: 'Protocol', value: '2'}  # Specifies using SSH protocol version 2, which is more secure than version 1.
+    - {key: 'LogLevel', value: 'INFO'}  # Sets the verbosity level of SSH logs to 'INFO', providing a good balance of information.
+    - {key: 'X11Forwarding', value: 'no'}  # Disables X11 forwarding to prevent potential security risks associated with graphical interfaces.
+    - {key: 'MaxAuthTries', value: '6'}  # Limits the number of authentication attempts, reducing the risk of brute-force attacks.
+    - {key: 'IgnoreRhosts', value: 'yes'}  # Ignores the user's `.rhosts` and `.shosts` files to prevent potential security risks.
+    - {key: 'HostbasedAuthentication', value: 'no'}  # Disables host-based authentication, a less secure method of authentication.
+    - {key: 'PermitEmptyPasswords', value: 'no'}  # Prevents users from having empty passwords, enforcing password use.
+    - {key: 'PermitUserEnvironment', value: 'no'}  # Disables acceptance of user environment variables, as they can be a security risk.
+    - {key: 'ClientAliveInterval', value: '300'}  # Sets a 5-minute interval for sending keepalive messages to detect unresponsive clients.
+    - {key: 'ClientAliveCountMax', value: '0'}  # Disallows client keepalive messages, closing connections with no response.
+    - {key: 'LoginGraceTime', value: '60'}  # Allows only 60 seconds for clients to authenticate, reducing the risk of attacks on the login process.
+    - {key: 'UsePAM', value: 'yes'}  # Enables the use of PAM (Pluggable Authentication Modules) for authentication purposes.
+    - {key: 'AllowTcpForwarding', value: 'no'}  # Disables TCP forwarding to prevent tunneling of other protocols over SSH.
+    - {key: 'MaxStartups', value: '10:30:100'}  # Configures the rate at which unauthenticated connections are dropped during high load.
+    - {key: 'MaxSessions', value: '4'}  # Limits the maximum number of open sessions per network connection to 4.
+  notify: Reload sshd

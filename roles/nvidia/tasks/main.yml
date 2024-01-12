@@ -1,0 +1,10 @@
+---
+- name: Find recommended NVIDIA driver
+  command: ubuntu-drivers devices
+  register: recommended_driver
+
+- name: Install recommended NVIDIA driver
+  become: true
+  command: sudo ubuntu-drivers autoinstall
+  when: "'recommended' in recommended_driver.stdout"
+  ignore_errors: true

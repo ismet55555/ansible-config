@@ -1,0 +1,14 @@
+---
+- name: Enable automatic login [1/2]
+  become: true
+  lineinfile:
+    path: /etc/gdm3/custom.conf
+    regexp: "^.*AutomaticLoginEnable.*$"
+    line: "AutomaticLoginEnable=true"
+
+- name: Enable automatic login [2/2]
+  become: true
+  lineinfile:
+    path: /etc/gdm3/custom.conf
+    regexp: "^.*AutomaticLogin.*$"
+    line: "AutomaticLogin={{ ansible_user }}"

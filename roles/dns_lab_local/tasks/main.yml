@@ -1,0 +1,23 @@
+---
+- name: Get the target's hostname
+  hostname:
+  register: target_hostname
+
+- name: Generate a new /etc/hosts file
+  template:
+    src: hosts.j2
+    dest: /tmp/hosts_temp
+
+- name: Replace the existing /etc/hosts file
+  become: true
+  copy:
+    src: /tmp/hosts_temp
+    dest: /etc/hosts
+  notify: Reload hosts file
+
+- name: Reload hosts file
+  systemd:
+    name: systemd-hostnamed.service
+    state: restarted
+  become: true
+  ignore_errors: true

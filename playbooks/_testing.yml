@@ -1,0 +1,19 @@
+---
+##############################################################################
+# Playbook for various testing and development
+##############################################################################
+- name: Ansible TESTING run
+  hosts: "{{ target_hosts | default('localhost') }}"
+  become: true
+
+  vars_files:
+    - ../secrets/default.vault.yml
+    - ../secrets/grub_credentials.vault.yml
+    - ../secrets/root.vault.yml
+
+  # vars:
+  #   new_hostname: ismet-home-dev
+
+  roles:
+    - role: ansible_test
+    # - role: bash_configs

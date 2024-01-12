@@ -1,0 +1,31 @@
+---
+##############################################################################
+# NOTE:
+#   - If upgrade fails with the following message:
+#       "You don't have enough free space in /var/cache/apt/archives"
+#     run command on target machine:
+#       "sudo raspi-config --expand-rootfs && sudo reboot"
+##############################################################################
+- name: APT Clean and Update Repository Cache
+  apt:
+    autoremove: true
+    autoclean: true
+    update_cache: true
+
+- name: Upgrade all packages
+  apt:
+    upgrade: true
+    autoremove: true
+    autoclean: true
+  register: apt_upgrade_result
+
+- name: Reboot the system
+  reboot:
+    msg: "[ANSIBLE] Rebooting system now"
+  when: apt_upgrade_result.changed
+
+- name: Wait for the system to come back up
+  wait_for_connection:
+    delay: 10
+    timeout: 120
+  when: apt_upgrade_result.changed

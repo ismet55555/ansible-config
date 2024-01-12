@@ -1,0 +1,26 @@
+---
+- name: Install Visual Studio Code
+  become: true
+  community.general.snap:
+    name: code
+    classic: true
+
+- name: Install vs code extensions
+  become: false
+  script: "{{ role_path }}/files/install_extensions.sh"
+  timeout: 700
+
+- name: Create VS Code user directory
+  file:
+    path: "/home/{{ ansible_user }}/.config/Code/User"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: Copy VS Code user settings
+  copy:
+    src: "{{ role_path }}/files/settings.json"
+    dest: "/home/{{ ansible_user }}/.config/Code/User/settings.json"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"

@@ -1,0 +1,26 @@
+##############################################################################
+# Fail2Ban jail.local Configuration File
+##############################################################################
+
+[DEFAULT]
+# Duration a ban lasts for
+bantime  = 10min
+
+# Duration of time to count the number of failures
+findtime  = 10m
+
+# Number of failures before a host is banned
+maxretry = 5
+
+# TODO: Define custom action for Slack notifications
+# TODO: Must sit in: /etc/fail2ban/action.d/slack-notify.sh
+# TODO: Restart fail2ban after adding the action
+# action = %(action_)s
+#         slack-notify[Alert from Fail2Ban: <name> jail triggered by <ip>]
+
+[sshd]
+# Enable the configuration for SSH
+enabled = true
+
+# Override the default action for specific jails if needed.
+# action = %(action_)s

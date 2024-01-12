@@ -1,0 +1,18 @@
+# =============================================
+#                SSH CONFIG
+# =============================================
+# The contents here belong into "~/.ssh/config"
+# More info:
+#   - https://www.ssh.com/academy/ssh/config
+# =============================================
+
+Host my-cool-reaspberry-pi
+    HostName 192.168.0.31
+    User pi
+    # IdentityFile <PATH TO PRIVATE SSH KEY>
+
+# =============================================
+# If 1password SSH agent is installed
+#   - https://developer.1password.com/docs/ssh/get-started
+# Host *
+#  IdentityAgent ~/.1password/agent.sock

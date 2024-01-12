@@ -1,0 +1,20 @@
+#!/bin/bash
+
+###############################################################################
+
+# Place any additional startup commands and settings here
+# This is called and loaded with .bashrc
+#
+# Examples:
+#    - export PATH="/some/path:$PATH"
+
+###############################################################################
+
+# Adding local bin folder to PATH
+export PATH="/home/xonar/.local/bin:$PATH"
+
+XAPPLRESDIR=/usr/local/MATLAB/MATLAB_Runtime/v97/X11/app-defaults
+export PATH=$PATH:$XAPPLRESDIR
+
+LD_LIBRARY_PATH=/usr/local/MATLAB/MATLAB_Runtime/v97/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v97/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v97/sys/os/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v97/sys/opengl/lib/glnxa64
+export PATH=$PATH:$LD_LIBRARY_PATH

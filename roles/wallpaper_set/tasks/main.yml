@@ -1,0 +1,40 @@
+---
+- name: Install support packages
+  become: true
+  apt:
+    name:
+      - dbus-x11
+      - python3-psutil
+      - imagemagick
+    state: present
+
+- name: Generate a desktop wallpaper background image
+  become: false
+  shell: |
+    convert -size 1920x1080 xc:black \
+      -gravity center \
+      -font Ubuntu-Bold -pointsize 100 \
+      -fill lightgrey -annotate 0x+0+0 "{{ wallpaper_heading }}" \
+      -font Ubuntu -pointsize 48 \
+      -fill lightgrey -annotate 0x+0+100 "{{ wallpaper_subheading }}" \
+      ./custom-wallpaper.png
+  args:
+    chdir: /home/{{ ansible_user }}/Pictures
+
+- name: Wait a seconds for image
+  pause:
+    seconds: 1
+
+- name: Set desktop wallpaper [Light Theme]
+  become: false
+  community.general.dconf:
+    key: "/org/gnome/desktop/background/picture-uri"
+    value: "'file:///home/{{ ansible_user }}/Pictures/custom-wallpaper.png'"
+    state: present
+
+- name: Set desktop wallpaper [Dark Theme]
+  become: false
+  community.general.dconf:
+    key: "/org/gnome/desktop/background/picture-uri-dark"
+    value: "'file:///home/{{ ansible_user }}/Pictures/custom-wallpaper.png'"
+    state: present

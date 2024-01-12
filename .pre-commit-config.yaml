@@ -1,0 +1,56 @@
+# -*- mode: yaml -*-
+# vim: set filetype=yaml
+---
+
+##############################################################################
+#
+# pre-commit will run the predefined tasks at each commit
+# To set up pre-commit on your development machine run the following
+# This following command will enable a git commit hook: .git/hooks/pre-commit
+#
+#   pre-commit install
+#
+# To simply run the pre-commit without installing it
+#
+#   pre-commit run
+#
+##############################################################################
+
+repos:
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-docstring-first
+      - id: detect-private-key
+      - id: check-ast
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+        files: (.yaml|.yml)
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.16.1
+    hooks:
+      - id: gitleaks
+        name: GitLeaks - Check for staged secrets
+
+  - repo: https://github.com/ansible/ansible-lint.git
+    rev: v6.22.1
+    hooks:
+      - id: ansible-lint
+        name: Ansible Lint
+        description: Run configurations on .ansible-lint file
+        files: \.(yaml|yml)$
+        exclude: ^secrets/|^playbooks/secrets/
+        verbose: true
+        args: [-c, ./.ansible-lint]

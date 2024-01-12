@@ -1,0 +1,142 @@
+---
+##############################################################################
+# https://github.com/JGoutin/ansible_home/blob/master/roles/clamav/tasks/main.yml
+##############################################################################
+- name: Add clamav linux group
+  become: true
+  ansible.builtin.group:
+    name: clamav
+    state: present
+
+- name: Add clamav linux user
+  become: true
+  ansible.builtin.user:
+    name: clamav
+    group: clamav
+    shell: /bin/false
+    comment: "Clam Antivirus"
+    system: yes
+
+- name: Create and set permissions on freshclam log
+  become: true
+  ansible.builtin.file:
+    path: /var/log/freshclam.log
+    state: touch
+    mode: '0600'
+    owner: clamav
+    group: clamav
+
+- name: Set up quarantine directory
+  become: true
+  ansible.builtin.file:
+    path: /root/quarantine
+    state: directory
+    owner: root
+    group: clamav
+    mode: '0750'
+
+- name: Give clamav user co-ownership of actively scanned directories
+  become: true
+  ignore_errors: true
+  ansible.builtin.acl:
+    path: "{{ item }}"
+    entity: clamav
+    etype: user
+    permissions: rx
+    state: present
+  loop:
+    - /home
+    - /root
+    - /var/www
+
+- name: Install CLamAV and Components
+  become: true
+  apt:
+    name:
+      - clamav
+      - clamav-base
+      - clamav-daemon
+      - clamav-freshclam
+      - clamtk
+    state: latest
+
+- name: Ensure ownership for ClamAV database directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: clamav
+    group: clamav
+    state: directory
+    recurse: yes
+  loop:
+    - /usr/local/share/clamav
+    - /var/lib/clamav
+
+- name: Copy clamd.conf to /etc/clamav/
+  become: true
+  ansible.builtin.copy:
+    src: clamd.conf
+    dest: /etc/clamav/clamd.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy freshclam.conf to /etc/clamav/
+  become: true
+  ansible.builtin.copy:
+    src: freshclam.conf
+    dest: /etc/clamav/freshclam.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Restart clamav-daemon service
+  ansible.builtin.service:
+    name: clamav-daemon.service
+    state: restarted
+
+- name: Restart clamav-freshclam service
+  ansible.builtin.service:
+    name: clamav-daemon.service
+    state: restarted
+
+##############################################################################
+#                       On-Access Scanning Setup
+##############################################################################
+# NOTE: sysctl inotify.max_user_watches
+#   - Set in Bytes
+#   - Default: 8192
+#   - Low: < 16384
+#   - Med: < 65536
+#   - High: < 262144
+#   - Max: 1048576
+- name: Increase fs.inotify.max_user_watches
+  ansible.builtin.sysctl:
+    name: fs.inotify.max_user_watches
+    value: '262144'
+    state: present
+    reload: yes
+
+- name: Copy clamonacc service definition
+  become: true
+  copy:
+    src: "{{ role_path }}/files/clamonacc.service"
+    dest: "/etc/systemd/system/clamonacc.service"
+
+- name: Change ownership of clamonacc service definition
+  become: true
+  file:
+    path: "/etc/systemd/system/clamonacc.service"
+    owner: root
+    group: root
+
+- name: Reload systemd daemon
+  become: true
+  shell: systemctl daemon-reload
+
+- name: Start and enable clamonacc.service
+  become: true
+  systemd:
+    name: clamonacc.service
+    state: started
+    enabled: true

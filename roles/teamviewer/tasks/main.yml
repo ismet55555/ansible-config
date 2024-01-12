@@ -1,0 +1,82 @@
+---
+- name: Download installation file
+  get_url:
+    url: "{{ teamviewer_download_link }}"
+    dest: "/tmp/teamviewer.deb"
+
+- name: Install TeamViewer
+  become: true
+  apt:
+    deb: "/tmp/teamviewer.deb"
+    state: present
+
+- name: Remove installation file
+  file:
+    path: "/tmp/teamviewer.deb"
+    state: absent
+
+- name: Accept EULA license
+  become: true
+  lineinfile:
+    path: /opt/teamviewer/config/global.conf
+    line: "[int32] EulaAccepted = 1"
+    create: true
+
+- name: Ensure TeamViewer is always online
+  become: true
+  lineinfile:
+    path: /opt/teamviewer/config/global.conf
+    line: "[int32] Always_Online = 1"
+    create: true
+
+- name: Generate random TeamViewer password
+  become: true
+  set_fact:
+    teamviewer_password: "{{ lookup('password', '/dev/null length=10 chars=ascii_lowercase,digits') | regex_replace('[^a-z0-9]', '') }}"
+
+- name: Set TeamViewer password
+  command: teamviewer passwd "{{ teamviewer_password }}"
+  changed_when: false
+  ignore_errors: true
+
+- name: Start and enable teamviewerd.service
+  become: true
+  systemd:
+    name: teamviewerd.service
+    state: started
+    enabled: true
+
+- name: Wait for 3 seconds for Teamviewer to stabilize
+  pause:
+    seconds: 3
+
+- name: Get TeamViewer ID
+  shell: "teamviewer info | awk '/TeamViewer ID:/ {print $NF}'"
+  register: teamviewer_id
+
+- name: Start TeamViewer
+  become: false
+  shell: "nohup teamviewer &"
+
+- name: Show TeamViewer ID and password
+  debug:
+    msg:
+      - "TeamViewer ID: {{ teamviewer_id.stdout }}"
+      - "TeamViewer password: {{ teamviewer_password }}"
+
+- name: Generate teamviewer credentials JSON file on remote host
+  template:
+    src: "{{ role_path }}/templates/teamviewer_credentials.json.j2"
+    dest: "/tmp/teamviewer_credentials.json"
+
+- name: Fetch teamviewer credentials JSON file to local control machine
+  fetch:
+    src: "/tmp/teamviewer_credentials.json"
+    dest: "../teamviewer_credentials_{{ teamviewer_id.stdout }}.json"
+    flat: true
+    fail_on_missing: true
+
+- name: Delete teamviewer credentials JSON file on remote host
+  file:
+    path: "/tmp/teamviewer_credentials.json"
+    state: absent

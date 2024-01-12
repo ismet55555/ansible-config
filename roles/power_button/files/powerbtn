@@ -1,0 +1,5 @@
+# Event to listen for
+event=button/power
+
+# Location of script invoked by power button event
+action=/etc/acpi/powerbutton_press.sh %e

@@ -1,0 +1,47 @@
+---
+- name: Copy BASH configuration (USER)
+  become: false
+  copy:
+    src: "{{ item }}"
+    dest: "/home/{{ ansible_user }}/"
+  with_items:
+    - "{{ role_path }}/files/.bash_aliases"
+    - "{{ role_path }}/files/.bash_bindings"
+    - "{{ role_path }}/files/.bash_env"
+    - "{{ role_path }}/files/.bash_intro"
+    - "{{ role_path }}/files/.bash_prompt"
+    - "{{ role_path }}/files/.bashrc"
+
+- name: Copy BASH configuration (ROOT)
+  become: true
+  copy:
+    src: "{{ item }}"
+    dest: "/root/"
+  with_items:
+    - "{{ role_path }}/files/.bash_aliases"
+    - "{{ role_path }}/files/.bash_bindings"
+    - "{{ role_path }}/files/.bash_env"
+    - "{{ role_path }}/files/.bash_intro"
+    - "{{ role_path }}/files/.bash_prompt"
+    - "{{ role_path }}/files/.bashrc"
+
+- name: Copy BASH configuration (SKEL)
+  become: true
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/skel/"
+  with_items:
+    - "{{ role_path }}/files/.bash_aliases"
+    - "{{ role_path }}/files/.bash_bindings"
+    - "{{ role_path }}/files/.bash_env"
+    - "{{ role_path }}/files/.bash_intro"
+    - "{{ role_path }}/files/.bash_prompt"
+    - "{{ role_path }}/files/.bashrc"
+
+- name: Update /etc/default/useradd SKEL
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/default/useradd
+    regexp: '^#?\s*SKEL='
+    line: 'SKEL=/etc/skel'
+    backrefs: yes

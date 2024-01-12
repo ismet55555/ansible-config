@@ -1,0 +1,32 @@
+---
+##############################################################################
+# Template for JumpCloud Execution
+#
+# Typical Usage:
+#   1. Create a branch from main/master branch
+#     - git checkout -b my-new-branch
+#   2. Make changes to this template
+#   3. Commit and push changes
+#     - git add .
+#     - git commit -m "my cool changes"
+#     - git push origin my-new-branch
+#   4. Reference this branch within JumpCloud command
+##############################################################################
+
+- name: Ansible JumpCloud Run
+  hosts: "{{ target_hosts | default('localhost') }}"
+  become: true
+
+  vars_files:
+    - ../secrets/localhost.vault.yml
+    - ../secrets/grub_credentials.vault.yml
+    - ../secrets/root.vault.yml
+
+  # Specify or overwrite any role-referenced variables here
+  vars:
+    unused_variable: something
+
+  # Specify any roles you want to execute
+  roles:
+    - role: ansible_test
+    # ...

@@ -1,0 +1,45 @@
+# NOTE: This file was deployed via Ansible.
+
+127.0.0.1   localhost
+127.0.1.1   "{{ target_hostname.stdout }}"
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+##############################################################################
+#                    Lab Local Static Addresses
+##############################################################################
+192.168.0.15 nas-u-drive
+192.168.0.16 nas-s3-mirror
+
+192.168.0.31 octopi-a
+192.168.0.32 octopi-b
+192.168.0.33 octopi-c
+192.168.0.34 octopi-d
+
+192.168.0.60 strato
+192.168.0.61 proto1
+192.168.0.62 proto2
+192.168.0.63 proto3
+
+192.168.0.70 cluster-worker-1
+192.168.0.71 cluster-worker-2
+192.168.0.72 cluster-worker-3  # aka. walk-file-downloader-1
+192.168.0.73 cluster-worker-4
+192.168.0.74 cluster-worker-5
+192.168.0.75 cluster-worker-6
+192.168.0.76 cluster-worker-7
+192.168.0.80 cluster-worker-8
+192.168.0.81 cluster-worker-9
+192.168.0.82 cluster-worker-10
+192.168.0.83 cluster-worker-11
+192.168.0.84 cluster-worker-12
+192.168.0.85 cluster-worker-13
+192.168.0.86 cluster-worker-14
+192.168.0.87 cluster-worker-15
+
+192.168.0.79 buildserver2

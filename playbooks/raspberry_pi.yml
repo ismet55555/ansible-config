@@ -1,0 +1,89 @@
+---
+- name: Provision a Raspberry Pi
+  hosts: "{{ target_hosts | default('NOT_FOUND') }}"
+  become: true
+
+  vars:
+    CHANGE_HOSTNAME: true
+    HOSTNAME: "{{ hostname }}"
+    BOOTBEHAVIOUR: B4
+    VNC: true
+
+  vars_files:
+    - ../secrets/raspberrypi.vault.yml
+
+  roles:
+    - role: ansible_test
+    - role: upgrade
+    - role: essential
+    - role: bash_configs
+    - role: vim
+    - role: tmux
+    - role: chrony
+    - role: log2ram
+    - role: rpi_config
+    - role: reboot
+
+
+##############################################################################
+#                                NOTES
+##############################################################################
+# Note for fresh Raspberry Pi flash/setup:
+#
+#   - Flash with Raspery Pi Imager
+#     - https://www.raspberrypi.com/documentation/computers/getting-started.html#installing-the-operating-system
+#   - Set SSH, user info, and WiFi at time of flash
+#
+##############################################################################
+#                           USAGE (Replace X's):
+##############################################################################
+# NOTE: Replace X's
+#
+# ansible-playbook \
+#   --inventory inventories/prod/hosts.ini \
+#   --extra-vars "ansible_host=192.168.X.XXX" \
+#   --extra-vars "target_hosts=raspberrypi" \
+#   --extra-vars "hostname=XXXXXXX" \
+#   playbooks/raspberry_pi.yml
+#
+##############################################################################
+#                    AVAILABLE VARIABLES FOR vars SECTION
+##############################################################################
+# UPDATE_RASPI:         true/false             # Update raspi-config itself
+# BOOTBEHAVIOUR:        B1/B2/B3/B4            # B1:cli, B2:cli autologin, B3:desktop, B4:desktop autologin
+#
+# CHANGE_USER_PASSWORD: true/false             # Changing the user password if true
+# USER_PASSWORD:        <TEXT>                 # Password for the default user
+#
+# CHANGE_HOSTNAME:      true/false             # Change the hostname from default "pi"
+# HOSTNAME:             <TEXT>                 # Hostname alias for this device to defined hostname
+#
+# CHANGE_LOCALE_INFO:   true/false             # Change any of the locale/location/keyboard information
+# LOCALE:               <TEXT>                 # See: https://gist.github.com/ismet55555/1cf97cf70cf88c8d01041e827dc1ec0f
+# TIMEZONE:             <TEXT>                 # See: https://gist.github.com/ismet55555/b9dcae58972eb3f4ef7fac508356fbbe
+# XKBLAYOUT:            <TEXT>                 # See: https://gist.github.com/ismet55555/4315b73ae8dcd932dc98376da506b895
+#
+# CHANGE_WIFI:          true/false             # Change anything WiFi Related
+# WIFI_COUNTRY:         <TEXT>                 # See: https://gist.github.com/ismet55555/bfc9a9de7d1bf9e79c7ef6bbfcf9cec0
+# WIFI_SSID:            <TEXT>                 # WiFi network name
+# WIFI_PASSPHRASE:      <TEXT>                 # Password to the WiFi
+#
+# SSH:                  true/false             # Command line access to the pi via ssh protocol
+# CAMERA:               true/false             # Connection to the Raspberry Pi Camera
+# VNC:                  true/false             # Graphical remote desktop access to your Pi using RealVNC
+# SPI:                  true/false             # Automatic loading of SPI kernel module
+# I2C:                  true/false             # Automatic loading of I2C kernel module
+# ONEWIRE:              true/false             # 1-Wire Interface
+# RGPIO:                true/false             # Enable remote access to GPIO Pins
+#
+# NETNAMES:             true/false             # Network interface names - Enable/Disable predictable network interface names
+# BOOTSPLASH:           0/1                    # Show the splash screen (0:Enabled, 1: Disabled)
+# OVERSCAN:             true/false             # May need to configure overscan if black bars are present on display
+# PIXDUB:               true/false             # Pixel doubling
+#
+#
+# FIXME: These need fixing for new raspberry OS
+# BOOTWAIT:             0/1                    # Wait for network at boot (0: Enabled, 1: Disabled)
+# SERIAL:               true/false             # Shell and kernel messages on the serial connection
+# MEMSPLIT:             16/32/64/128/256       # Set memory split for GPU (eg. 64 MB)
+# AUDIO_OUT:            0/1/2                  # Audio Output - 0:Auto, 1:Force 3.5mm, 2:Force HDMI

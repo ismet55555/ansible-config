@@ -1,0 +1,40 @@
+---
+
+##############################################################################
+# Grub2 Bootloader Authentication Resources
+#   - https://help.ubuntu.com/community/Grub2/Passwords
+#   - https://daniel-lange.com/archives/75-Securing-the-grub-boot-loader.html
+#
+# NOTE: Generate hashed GRUB password with GRUB mkpasswd tool
+# NOTE: Grub credentials are stored in an Ansible Vault
+##############################################################################
+
+- name: Copy GRUB2 Bootloader Custom Configuration with Password (etc/grub.d/40_custom)
+  become: true
+  template:
+    src: "{{ role_path }}/templates/40_custom.j2"
+    dest: "/etc/grub.d/40_custom"
+    owner: root
+    group: root
+    mode: '0755'
+  notify: Update GRUB
+
+- name: Replace GRUB menu entry line to add --unrestricted (etc/grub.d/10_linux - title)
+  become: true
+  lineinfile:
+    path: /etc/grub.d/10_linux
+    regexp: '^(.*menuentry.*title.*submenu_indentation.*)$'
+    line: |
+      echo "menuentry '$(echo "$title" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-$version-$type-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+    backrefs: yes
+  notify: Update GRUB
+
+- name: Replace GRUB menu entry line to add --unrestricted (etc/grub.d/10_linux - os)
+  become: true
+  lineinfile:
+    path: /etc/grub.d/10_linux
+    regexp: '^(.*menuentry.*os.*submenu_indentation.*)$'
+    line: |
+      echo "menuentry '$(echo "$os" | grub_quote)' --unrestricted ${CLASS} \$menuentry_id_option 'gnulinux-simple-$boot_device_id' {" | sed "s/^/$submenu_indentation/"
+    backrefs: yes
+  notify: Update GRUB

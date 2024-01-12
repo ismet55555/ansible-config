@@ -1,0 +1,19 @@
+---
+- name: Reboot the system (remote)
+  reboot:
+    msg: "[ANSIBLE] Rebooting system now"
+  when: inventory_hostname != 'localhost'
+
+- name: Wait for the system to come back up (remote)
+  become: true
+  wait_for_connection:
+    delay: 10
+    timeout: 120
+  when: inventory_hostname != 'localhost'
+
+- name: Reboot localhost the dangerous way (local)
+  shell: sleep 2 && /sbin/shutdown -r now "Ansible system reboot"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: inventory_hostname == 'localhost'

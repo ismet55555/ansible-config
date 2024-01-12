@@ -1,0 +1,19 @@
+---
+- name: Add Ansible PPA
+  become: true
+  ansible.builtin.apt_repository:
+    repo: ppa:ansible/ansible
+    state: present
+    update_cache: yes
+
+- name: Install Ansible
+  become: true
+  apt:
+    name: ansible
+    state: latest
+
+- name: Install sshpass
+  become: true
+  apt:
+    name: sshpass
+    state: latest

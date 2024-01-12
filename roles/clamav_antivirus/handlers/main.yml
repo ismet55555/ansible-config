@@ -1,0 +1,6 @@
+# NOTE: Handlers get executed when something changes
+---
+- name: Restart clamonacc service
+  ansible.builtin.service:
+    name: clamonacc.service
+    state: restarted

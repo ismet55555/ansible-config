@@ -1,0 +1,20 @@
+---
+- name: Install SSH client
+  become: true
+  apt:
+    name:
+      - openssh-client
+    state: latest
+
+- name: Create SSH configuration directory
+  become: false
+  file:
+    path: "/home/{{ ansible_user }}/.ssh/"
+    state: directory
+    mode: '0700'
+
+- name: Copy SSH config file
+  become: false
+  copy:
+    src: "{{ role_path }}/files/config"
+    dest: "/home/{{ ansible_user }}/.ssh/config"

@@ -1,0 +1,15 @@
+---
+##############################################################################
+# Resources:
+#   - https://help.ubuntu.com/community/Grub2/Passwords
+#   - https://daniel-lange.com/archives/75-Securing-the-grub-boot-loader.html
+##############################################################################
+- name: Copy GRUB configurations
+  become: true
+  copy:
+    src: "{{ role_path }}/files/grub"
+    dest: "/etc/default/grub"
+
+- name: Save and enable GRUB configurations
+  become: true
+  shell: update-grub

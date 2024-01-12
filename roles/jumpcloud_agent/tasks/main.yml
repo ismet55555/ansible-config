@@ -1,0 +1,16 @@
+---
+- name: Install required packages
+  apt:
+    name:
+      - curl
+
+- name: Check if JumpCloud agent is already installed
+  stat:
+    path: /opt/jumpcloud
+  register: jumpcloud_installed
+  ignore_errors: true
+
+- name: Download and install JumpCloud agent
+  become: true
+  shell: "curl --tlsv1.2 --silent --show-error --header 'x-connect-key: {{ jumpcloud_connect_key }}' https://kickstart.jumpcloud.com/Kickstart | sudo bash"
+  when: not jumpcloud_installed.stat.exists

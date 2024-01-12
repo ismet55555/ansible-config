@@ -1,0 +1,9 @@
+---
+- name: Set new hostname
+  hostname:
+    name: "{{ new_hostname }}"
+
+- name: Show newly set hostname
+  debug:
+    msg:
+      - "Hostname: {{ new_hostname }}"

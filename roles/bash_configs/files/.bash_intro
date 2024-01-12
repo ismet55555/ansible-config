@@ -1,0 +1,36 @@
+#!/bin/bash
+
+###############################################################################
+
+# Introduciton prompt to bash terminal
+# Will run when bash terminal is opened
+# Typically non-functional things
+# This will be loaded at the end of .bashrc
+
+###############################################################################
+
+MEM_TOTAL=$(free -m | awk '/Mem/{print $2/1024}')
+MEM_USED=$(free -m | awk '/Mem/{print $3/1024}')
+
+HD_INFO=$(df -h | grep 'vg--xonar-' | awk '{ total += $2; used += $3 } END { printf "%.1fG (%d%% In Use)", total, (used / total) * 100 }')
+
+VAR_SIZE=$(df -h /var | awk 'NR > 1 {print $2}')
+VAR_USED=$(df -h /var | awk 'NR > 1 {print $5}' | cut -d "%" -f 1)
+
+echo "_____________________________________________________"
+echo ""
+echo "   ██   ██  ██████  ███    ██  █████  ██████ "
+echo "    ██ ██  ██    ██ ████   ██ ██   ██ ██   ██" 
+echo "     ███   ██    ██ ██ ██  ██ ███████ ██████ " 
+echo "    ██ ██  ██    ██ ██  ██ ██ ██   ██ ██   ██" 
+echo "   ██   ██  ██████  ██   ████ ██   ██ ██   ██" 
+echo "_____________________________________________________"
+printf "   %s\n" "Datetime:   $(date)"
+printf "   %s\n" "Linux:      $(uname -rms)"
+printf "   %s\n" "OS:         $(awk -F= '$1=="PRETTY_NAME" { print $2 ;}' /etc/os-release)"
+printf "   %s\n" "CPU Arch:   $(uname --processor)"
+printf "   %s\n" "Uptime:     $(uptime -p)"
+printf "   %s\n" "Memory:     $(printf "%.1fGB (%.1fGB In Use)" "$MEM_TOTAL" "$MEM_USED")"
+printf "   %s\n" "Disk:       $HD_INFO"
+printf "   %s\n" "/var:       $VAR_SIZE ($VAR_USED% In Use)"
+echo "_____________________________________________________"

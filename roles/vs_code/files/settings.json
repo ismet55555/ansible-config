@@ -1,0 +1,24 @@
+{
+    "workbench.colorTheme": "One Dark Pro",
+    "workbench.iconTheme": "vscode-icons",
+    "editor.lineNumbers": "on",
+    "editor.scrollbar.verticalScrollbarSize": 30,
+    "editor.scrollbar.horizontal": "visible",
+    "editor.scrollbar.horizontalScrollbarSize": 30,
+    "editor.cursorSurroundingLines": 2,
+    "editor.minimap.maxColumn": 150,
+    "editor.minimap.enabled": false,
+    "editor.rulers": [
+        100
+    ],
+    "editor.lineHeight": 1.6,
+    "diffEditor.renderSideBySide": true,
+    "debug.console.lineHeight": 1.0,
+    "terminal.integrated.lineHeight": 1.6,
+    "git.autofetch": true,
+    "extensions.ignoreRecommendations": true,
+    "files.associations": {
+        "*.m": "matlab"
+    },
+    "workbench.startupEditor": "none"
+}

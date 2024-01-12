@@ -1,0 +1,22 @@
+# /etc/systemd/system/clamonacc.service
+# Issue: https://github.com/Cisco-Talos/clamav/issues/186
+[Unit]
+Description=ClamAV On Access Scanner
+Requires=clamav-daemon.service
+After=clamav-daemon.service syslog.target network.target
+
+[Service]
+Type=simple
+User=root
+ExecStartPre=/bin/bash -c "while [ ! -S /var/run/clamav/clamd.ctl ]; do sleep 1; done"
+ExecStart=
+ExecStart=/usr/sbin/clamonacc -F --config-file=/etc/clamav/clamd.conf --log=/var/log/clamav/clamonacc.log --move=/root/quarantine --fdpass
+Restart=on-failure
+StartLimitBurst=3
+TimeoutStopSec=30
+TimeoutStopSec=15
+RestartSec=60
+LimitNOFILE=24576
+
+[Install]
+WantedBy=multi-user.target

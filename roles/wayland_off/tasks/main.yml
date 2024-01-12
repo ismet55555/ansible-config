@@ -1,0 +1,17 @@
+---
+- name: Disable Wayland
+  become: true
+  lineinfile:
+    path: /etc/gdm3/custom.conf
+    regexp: "^#WaylandEnable=false"
+    line: "WaylandEnable=false"
+
+- name: Set gdm3 to use Xorg
+  command: >
+    gsettings set org.gnome.desktop.session session-name 'ubuntu-xorg'
+
+- name: Restart gdm3 service
+  become: true
+  systemd:
+    name: gdm3
+    state: restarted

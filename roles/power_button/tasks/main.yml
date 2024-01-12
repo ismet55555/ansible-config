@@ -1,0 +1,38 @@
+---
+- name: Install ACPID (Advanced Configuration and Power Interface Daemon)
+  apt:
+    name: acpid
+    state: present
+    update_cache: true
+
+- name: Create ACPID events directory
+  become: true
+  file:
+    path: "/etc/acpi/events/"
+    state: directory
+
+- name: Copy ACPID event rule file
+  become: true
+  copy:
+    src: "{{ role_path }}/files/powerbtn"
+    dest: "/etc/acpi/events/powerbtn"
+    mode: "u+rwx,g+rx,o+rx"
+
+- name: Copy power button press script
+  become: true
+  copy:
+    src: "{{ role_path }}/files/powerbutton_press.sh"
+    dest: "/etc/acpi/powerbutton_press.sh"
+    mode: "u+rwx,g+rx,o+rx"
+
+- name: Start and enable acpid.service
+  become: true
+  systemd:
+    name: acpid.service
+    state: restarted
+    enabled: true
+
+- name: Disable power button default OS action
+  become: false
+  command: gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'nothing'
+  changed_when: false

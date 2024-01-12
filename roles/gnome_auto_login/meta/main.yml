@@ -1,0 +1,9 @@
+---
+galaxy_info:
+  author: Ismet Handzic
+  description: A role for setting main user automatic login
+  company: Logic Lift Solutions, LLC
+  min_ansible_version: "2.14"
+  license: Proprietery
+  platforms:
+    - name: Ubuntu

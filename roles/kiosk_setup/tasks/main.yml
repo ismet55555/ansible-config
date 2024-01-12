@@ -1,0 +1,190 @@
+---
+############################################################################
+# Turn off automatic updates
+############################################################################
+- name: Uninstall unattended-upgrades
+  apt:
+    name: unattended-upgrades
+    state: absent
+
+- name: Uninstall update-notifier
+  apt:
+    name: update-notifier
+    state: absent
+
+- name: Uninstall update-manager-core
+  apt:
+    name: update-manager-core
+    state: absent
+
+
+############################################################################
+# OS Boot Splash Screen
+############################################################################
+- name: Install plymouth boot splash screen manager
+  become: true
+  apt:
+    name:
+      - plymouth
+      - plymouth-themes
+      - plymouth-x11
+    state: latest
+
+- name: Copy plymouth theme - darwin
+  become: true
+  copy:
+    src: "{{ role_path }}/files/plymouth-theme/"
+    dest: "/usr/share/plymouth/themes/darwin/"
+
+- name: Install and set plymouth theme - darwin
+  become: true
+  shell: |
+    update-alternatives --install \
+        /usr/share/plymouth/themes/default.plymouth \
+        default.plymouth \
+        /usr/share/plymouth/themes/darwin/darwin.plymouth \
+        420
+
+    update-alternatives --set \
+        default.plymouth \
+        "$(update-alternatives --list default.plymouth | grep -w darwin)"
+
+    update-initramfs -u
+
+############################################################################
+# Install and enable GNOME shell extensions
+############################################################################
+- name: Install GNOME shell extension dependencies
+  become: true
+  apt:
+    name:
+      - gnome-shell-extensions
+      - x11-xserver-utils
+    state: latest
+
+- name: Enable all user-defined extensions
+  become: false
+  shell: gsettings set org.gnome.shell disable-user-extensions false
+
+
+- name: Copy GNOME shell extension zip package - distable-gestures
+  become: false
+  copy:
+    src: "{{ role_path }}/files/disable-gestures-2021verycrazydog.gmail.com.v4.shell-extension.zip"
+    dest: "/tmp/"
+
+- name: Copy GNOME shell extension zip package - just-perfection
+  become: false
+  copy:
+    src: "{{ role_path }}/files/just-perfection-desktopjust-perfection.v24.shell-extension.zip"
+    dest: "/tmp/"
+
+- name: Copy GNOME shell extension zip package - (Disable On-Screen Keyboard)
+  become: false
+  copy:
+    src: "{{ role_path }}/files/block-caribou-36lxylxy123456.ercli.dev.v5.shell-extension.zip"
+    dest: "/tmp/"
+
+- name: Install GNOME shell extension - disable-gestures
+  become: false
+  shell: gnome-extensions install /tmp/disable-gestures-2021verycrazydog.gmail.com.v4.shell-extension.zip --force
+
+- name: Install GNOME shell extension - just-perfiection
+  become: false
+  shell: gnome-extensions install /tmp/just-perfection-desktopjust-perfection.v24.shell-extension.zip --force
+
+- name: Install GNOME shell extension - block-caribou (Disable On-Screen Keyboard)
+  become: false
+  shell: gnome-extensions install /tmp/block-caribou-36lxylxy123456.ercli.dev.v5.shell-extension.zip --force
+
+- name: Restart GNOME Shell (Workaround to enable extensions without logout)
+  become: false
+  shell: |
+    DISPLAY=:0
+    XAUTHORITY=~/.Xauthority
+    gnome_shell_pid=$(pgrep -u "{{ ansible_user }}" gnome-shell)
+    if [ -n "$gnome_shell_pid" ]; then
+      kill -HUP $gnome_shell_pid
+    fi
+- name: Wait for GNOME to restart
+  pause:
+    seconds: 5
+
+- name: Enable GNOME shell extensions - disable-gestures
+  become: false
+  shell: gnome-extensions enable "disable-gestures-2021@verycrazydog.gmail.com"
+
+- name: Enable GNOME shell extensions - just-perfection
+  become: false
+  shell: gnome-extensions enable "just-perfection-desktop@just-perfection"
+
+- name: Enable GNOME shell extensions - block-caribou (Disable On-Screen Keyboard)
+  become: false
+  shell: gnome-extensions enable "block-caribou-36@lxylxy123456.ercli.dev"
+
+
+############################################################################
+# Customize GNOME Environment for Kiosk Mode
+############################################################################
+- name: Setup various 'just-perfection' settings
+  become: false
+  shell: |
+    # # just-perfection - Remove top desktop panel bar
+    # dconf write /org/gnome/shell/extensions/just-perfection/panel false
+    # dconf write /org/gnome/shell/extensions/just-perfection/panel-in-overview false
+
+    # # just-perfection - No app menu
+    # dconf write /org/gnome/shell/extensions/just-perfection/app-menu false
+
+    # just-perfection - OS dashboard
+    dconf write /org/gnome/shell/extensions/just-perfection/dash true
+
+    # just-perfection - No OSD (On Screen Display)
+    dconf write /org/gnome/shell/extensions/just-perfection/osd false
+
+    # just-perfection - No hot corners
+    dconf write /org/gnome/shell/extensions/just-perfection/hot-corner false
+
+    # just-perfection - No OS animations
+    dconf write /org/gnome/shell/extensions/just-perfection/animation 0
+
+
+- name: Setup various GNOME desktop settings
+  become: false
+  shell: |
+    # Remove GNOME desktop background
+    # dconf write /org/gnome/desktop/background/picture-uri "''"
+    # dconf write /org/gnome/desktop/background/picture-uri-dark "''"
+
+    # Set specific GNOME dash favorites
+    dconf write /org/gnome/shell/favorite-apps "['org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'gnome-control-center.desktop']"
+
+    # Enable OS dock auto-hide
+    dconf write /org/gnome/shell/extensions/dash-to-dock/dock-fixed true
+
+    # Disable OS gesture hot corners
+    gsettings set org.gnome.desktop.interface enable-hot-corners false
+
+    # Disable OS edge tiling
+    gsettings set org.gnome.shell.overrides edge-tiling false
+
+    # Disable on-screen virtual keyboard
+    gsettings set org.gnome.desktop.a11y.applications screen-keyboard-enabled false
+    gsettings set org.gnome.desktop.screensaver embedded-keyboard-enabled false
+
+    # Set screen idle delay to Never
+    dconf write /org/gnome/desktop/session/idle-delay 'uint32 0'
+
+
+############################################################################
+# Update GRUB for Kiosk Mode
+############################################################################
+- name: Copy updated GRUB configurations
+  become: true
+  copy:
+    src: "{{ role_path }}/files/grub"
+    dest: "/etc/default/grub"
+
+- name: Save and enable GRUB configurations
+  become: true
+  shell: update-grub

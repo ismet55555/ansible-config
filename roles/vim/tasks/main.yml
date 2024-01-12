@@ -1,0 +1,67 @@
+---
+- name: Install VIM
+  become: true
+  apt:
+    name:
+      - vim
+    state: latest
+
+##############################################################################
+
+- name: Copy VIM configurations (USER)
+  become: false
+  copy:
+    src: "{{ role_path }}/files/.vimrc"
+    dest: "/home/{{ ansible_user }}/.vimrc"
+
+- name: Create VIM configuration directory (USER)
+  become: false
+  file:
+    path: "/home/{{ ansible_user }}/.vim/colors/"
+    state: directory
+
+- name: Copy VIM color file (USER)
+  become: false
+  copy:
+    src: "{{ role_path }}/files/.vim/colors/sublimemonokai.vim"
+    dest: "/home/{{ ansible_user }}/.vim/colors/sublimemonokai.vim"
+
+##############################################################################
+
+- name: Copy VIM configurations (ROOT)
+  become: true
+  copy:
+    src: "{{ role_path }}/files/.vimrc"
+    dest: "/root/.vimrc"
+
+- name: Create VIM configuration directory (ROOT)
+  become: true
+  file:
+    path: "/root/.vim/colors/"
+    state: directory
+
+- name: Copy VIM color file (ROOT)
+  become: true
+  copy:
+    src: "{{ role_path }}/files/.vim/colors/sublimemonokai.vim"
+    dest: "/root/.vim/colors/sublimemonokai.vim"
+
+##############################################################################
+#
+- name: Copy VIM configurations (SKEL)
+  become: true
+  copy:
+    src: "{{ role_path }}/files/.vimrc"
+    dest: "/etc/skel/.vimrc"
+
+- name: Create VIM configuration directory (SKEL)
+  become: true
+  file:
+    path: "/etc/skel/.vim/colors/"
+    state: directory
+
+- name: Copy VIM color file (SKEL)
+  become: true
+  copy:
+    src: "{{ role_path }}/files/.vim/colors/sublimemonokai.vim"
+    dest: "/etc/skel/.vim/colors/sublimemonokai.vim"

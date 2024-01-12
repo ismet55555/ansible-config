@@ -1,0 +1,13 @@
+# Place this script into ~/.config/autostart/
+#     - mkdir -p ~/.config/autostart
+
+[Desktop Entry]
+Type=Application
+Exec=/usr/bin/onboard
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[en_US]=Onboard Virtual Keyboard
+Name=Onboard Virtual Keyboard
+Comment[en_US]=Launch Onboard Virtual Keyboard
+Comment=Launch Onboard Virtual Keyboard

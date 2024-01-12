@@ -1,0 +1,37 @@
+---
+- name: Install python3-dev package
+  apt:
+    name: python3-dev
+    state: present
+    update_cache: true
+
+- name: Install python3-venv package
+  apt:
+    name: python3-venv
+    state: present
+
+# TODO: Check if pip is present, if not do not install
+
+- name: Download get-pip.py
+  get_url:
+    url: https://bootstrap.pypa.io/get-pip.py
+    dest: /tmp/get-pip.py
+
+- name: Install pip
+  shell: python3 /tmp/get-pip.py
+
+- name: Remove get-pip.py
+  file:
+    path: /tmp/get-pip.py
+    state: absent
+
+- name: Install/Upgrade pip packages
+  pip:
+    name:
+      - pip
+      - setuptools
+      - wheel
+      - virtualenv
+      - pipenv
+      - cryptography
+    state: latest

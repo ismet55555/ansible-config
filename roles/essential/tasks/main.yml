@@ -1,0 +1,66 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: true
+
+- name: Install esstential - CLI tools
+  become: true
+  apt:
+    name:
+      - fzf
+      - gcc
+      - htop
+      - iftop
+      - make
+      - ripgrep
+      - tree
+      - wmctrl
+      - xclip
+    state: latest
+
+- name: Install esstential - Networking tools
+  become: true
+  apt:
+    name:
+      - curl
+      - iproute2
+      - mtr
+      - net-tools
+      - traceroute
+    state: latest
+
+- name: Install essential - System tools
+  become: true
+  apt:
+    name:
+      - acpid
+      - git
+      - gparted
+      - lvm2
+      - netplan.io
+      - openssh-server
+    state: latest
+
+- name: Remove not needed software
+  become: true
+  apt:
+    name:
+      - thunderbird*
+      - transmission*
+      - libreoffice*
+      - gimp*
+      - pidgin*
+    state: absent
+
+- name: Clean up apt
+  become: true
+  apt:
+    autoremove: true
+    autoclean: true
+
+# - name: Install Node.js and npm using NodeSource repository
+#   shell: |
+#     curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+#     sudo apt-get install -y nodejs
+#   args:
+#     creates: /usr/bin/node

@@ -1,0 +1,38 @@
+---
+- name: Install 'onboard' virtual on-screen keyboard
+  become: true
+  apt:
+    name:
+      - onboard
+    state: latest
+
+- name: Copy onboard virtual keyboard autostart .desktop file
+  become: false
+  copy:
+    src: "{{ role_path }}/files/onboard-virtual-keyboard.desktop"
+    dest: "/home/{{ ansible_user }}/.config/autostart/onboard-virtual-keyboard.desktop"
+
+- name: Setup onboard virtual keyboard autostart script
+  become: false
+  shell: |
+    dconf write /org/onboard/layout "'/usr/share/onboard/layouts/Small.onboard'"
+    dconf write /org/onboard/theme "'/usr/share/onboard/themes/HighContrast.theme'"
+    dconf write /org/onboard/xembed-onboard "false"
+
+    dconf write /org/onboard/auto-show/enabled "false"
+    dconf write /org/onboard/auto-show/hide-on-key-press "false"
+
+    dconf write /org/onboard/snippets "'[]'"
+    dconf write /org/onboard/start-minimized "true"
+    dconf write /org/onboard/show-status-icon "false"
+    dconf write /org/onboard/start-minimized "false"
+
+    dconf write /org/onboard/keyboard/touch-input "'single'"
+    dconf write /org/onboard/keyboard/touch-feedback-enabled "true"
+    dconf write /org/onboard/keyboard/touch-feedback-size "60"
+    dconf write /org/onboard/keyboard/key-press-modifiers "@a{ss} {}"
+
+    dconf write /org/onboard/lockdown/disable-keys "[['LALT', 'TAB', 'LALT', 'SHIFT', 'TAB', 'CTRL', 'ALT', 'F[0-9]+', 'LWIN']]"
+    dconf write /org/onboard/lockdown/disable-quit "true"
+    dconf write /org/onboard/window/docking-shrink-workarea "false"
+    dconf write /org/onboard/theme-settings/roundrect-radius '10.0'

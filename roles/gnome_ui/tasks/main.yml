@@ -1,0 +1,4 @@
+---
+- name: Customize GNOME look and feel
+  become: false
+  script: "{{ role_path }}/files/setup_gnome.sh"

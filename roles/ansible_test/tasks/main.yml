@@ -1,0 +1,4 @@
+---
+- name: Check if ansible is working correctly
+  debug:
+    msg: "Works so far!"

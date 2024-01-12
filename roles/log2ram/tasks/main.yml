@@ -1,0 +1,29 @@
+---
+- name: Add repository
+  shell: >-
+    echo "deb [signed-by=/usr/share/keyrings/azlux-archive-keyring.gpg]
+    http://packages.azlux.fr/debian/ bullseye main" |
+    sudo tee /etc/apt/sources.list.d/azlux.list
+
+- name: Add log2ram GPG apt Key
+  shell: >-
+    sudo wget -O /usr/share/keyrings/azlux-archive-keyring.gpg
+    https://azlux.fr/repo.gpg
+
+- name: Install log2ram
+  apt:
+    name: log2ram
+    update_cache: true
+
+- name: Copy log2ram configurations
+  become: true
+  copy:
+    src: "{{ role_path }}/files/log2ram.conf"
+    dest: "/etc/log2ram.conf"
+
+- name: Restart log2ram service
+  become: true
+  systemd:
+    name: log2ram.service
+    state: restarted
+    enabled: true

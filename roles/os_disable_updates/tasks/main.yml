@@ -1,0 +1,15 @@
+---
+- name: Disable Auto-update - Uninstall unattended-upgrades
+  apt:
+    name: unattended-upgrades
+    state: absent
+
+- name: Disable Auto-update - Uninstall update-notifier
+  apt:
+    name: update-notifier
+    state: absent
+
+- name: Disable Auto-update - Uninstall update-manager-core
+  apt:
+    name: update-manager-core
+    state: absent

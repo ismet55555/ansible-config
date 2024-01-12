@@ -1,0 +1,11 @@
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+# ###########################################################################
+# Grub2 Bootloader Authentication
+#   NOTE: superuser name is not related to Linux users
+#   NOTE: Generate hashed GRUB password with GRUB mkpasswed tool
+set superusers="{{ grub_username }}"
+password_pbkdf2 {{ grub_username }} '{{ grub_password }}'

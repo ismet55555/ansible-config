@@ -1,0 +1,25 @@
+---
+- name: Install TMUX
+  become: true
+  apt:
+    name:
+      - tmux
+    state: latest
+
+- name: Copy TMUX configurations (USER)
+  become: false
+  copy:
+    src: "{{ role_path }}/files/.tmux.conf"
+    dest: "/home/{{ ansible_user }}/.tmux.conf"
+
+- name: Copy TMUX configurations (ROOT)
+  become: true
+  copy:
+    src: "{{ role_path }}/files/.tmux.conf"
+    dest: "/root/.tmux.conf"
+
+- name: Copy TMUX configurations (SKEL)
+  become: true
+  copy:
+    src: "{{ role_path }}/files/.tmux.conf"
+    dest: "/etc/skel/.tmux.conf"

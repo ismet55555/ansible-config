@@ -1,0 +1,39 @@
+---
+- name: Provision My Machine
+  hosts: "{{ target_hosts | default('NOT_FOUND') }}"
+  become: true
+
+  vars_files:
+    - ../secrets/default.vault.yml
+    - ../secrets/grub_credentials.vault.yml
+    - ../secrets/root.vault.yml
+
+  vars:
+    new_hostname: <HOSTNAME>          # <---- Set new machine hostname (ie. my-cool-computer)
+    wallpaper_heading: HELLO!
+    wallpaper_subheading: <HOSTNAME>  # <---- Set new machien hostname
+
+  roles:
+    - role: ansible_test
+    - role: upgrade
+    - role: essential
+    - role: ansible_install
+    - role: python_essential
+    - role: bash_configs
+    - role: ssh_server
+    - role: vs_code
+    - role: vim
+    - role: tmux
+    - role: gnome_ui
+    - role: gnome_auto_login
+    - role: chrony
+    - role: grub_password
+    - role: root_password_change
+    - role: wayland_off
+    - role: teamviewer # check
+    - role: wallpaper_set
+    - role: firewall
+    - role: fail2ban
+    - role: clamav_antivirus
+    - role: jumpcloud_agent
+    - role: reboot
